@@ -108,17 +108,19 @@ def get_tail_latency(df, percentile):
     ptlat = latencyList[int(percentile*len(latencyList))]
     return ptlat
 
-#session = SessionAssistant(IpAddress='10.36.70.3', RestPort=None, UserName='admin', Password='admin', 
-#                              SessionName=None, SessionId=1, ApiKey=None, ClearConfig=False, LogLevel='info')
+print('Connecting to IxNetwork session')
 session = SessionAssistant(IpAddress='10.36.87.216', RestPort=None,  
                                SessionName=None, SessionId=1, ApiKey=None, ClearConfig=False, LogLevel='info')
 ixNetwork = session.Ixnetwork
 ixNetwork.CloseAllTabs()
-#ixNetwork.Traffic.Start()
-#time.sleep(10)
+print('Priming the DUT with Multicast traffic')
+ixNetwork.Traffic.Start()
+time.sleep(10)
+print('Starting capture and traffic to get samples')
 ixNetwork.StartCapture()
 ixNetwork.Traffic.Start()
 time.sleep(10)
+print('Stopping capture and analyzing the packets')
 ixNetwork.StopCapture()
 pathp = ixNetwork.Globals.PersistencePath
 res = ixNetwork.SaveCaptureFiles(Arg1=pathp)[0]
@@ -127,4 +129,5 @@ session.Session.DownloadFile(res, cf)
 host1_df = hw_pcap_to_dataframe(cf, "novus", 5000)
 print(host1_df)
 for p in [99, 95, 75, 50]:
+    print('Calculated tail latencies')
     print(p,(get_tail_latency(host1_df, p)))
