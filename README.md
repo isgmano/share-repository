@@ -1,1 +1,1 @@
-# mytest
+# Scripts repository
