@@ -1,3 +1,7 @@
+#
+#This script assumes the configuration is preloaded and the test is running. 
+#This test will capture packets and analyze to get tail latency.
+#
 #from IPython.display import Image, display, display_png
 import os, sys, inspect, io, re
 from scapy.all import *
@@ -109,8 +113,12 @@ def get_tail_latency(df, percentile):
     return ptlat
 
 print('Connecting to IxNetwork session')
-session = SessionAssistant(IpAddress='10.36.87.216', RestPort=None,  
-                               SessionName=None, SessionId=1, ApiKey=None, ClearConfig=False, LogLevel='info')
+#use this for IxN web edition; use SessionName attribute for an existing session; replace correct credentials
+session = SessionAssistant(IpAddress='10.36.84.12', RestPort=None, UserName='admin', Password='admin', 
+                              SessionName="IxNetwork Test 1", SessionId=1, ApiKey=None, ClearConfig=False, LogLevel='info')
+#use this for IxN Windows edition
+#session = SessionAssistant(IpAddress='10.36.87.216', RestPort=None,  
+#                               SessionName=None, SessionId=1, ApiKey=None, ClearConfig=False, LogLevel='info')
 ixNetwork = session.Ixnetwork
 ixNetwork.CloseAllTabs()
 print('Priming the DUT with Multicast traffic')
