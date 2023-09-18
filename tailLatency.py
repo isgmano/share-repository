@@ -59,19 +59,19 @@ def decode_hw_ts(p, layer, card):
         return t
     raise Exception(f'layer {layer} not present in {p}')
     
-def hw_pcap_to_dataframe(filename, card, limit=0):
+def hw_pcap_to_dataframe(filename, card, limit=0, type="IP"):
     res = []
     n = 0
     for p in PcapReader(filename):
-        if p.haslayer(IP):
+        if p.haslayer(type):
             res.append({
-                "sent": decode_hw_ts(p, IP, card),
+                "sent": decode_hw_ts(p, type, card),
                 "received": hw_pcap_to_ns(p.time),
                 "wirelen": p.wirelen,
-                "src": p[IP].src,
+                "src": p[type].src,
                 "timestamp": hw_pcap_to_dt(p.time),
-                "type": "ip",
-                "latency": hw_pcap_to_ns(p.time) - decode_hw_ts(p, IP, card)
+                "type": type,
+                "latency": hw_pcap_to_ns(p.time) - decode_hw_ts(p, type, card)
             })
         if p.haslayer(scapy.contrib.mac_control.MACControlClassBasedFlowControl):
             q = p[scapy.contrib.mac_control.MACControlClassBasedFlowControl]
@@ -134,7 +134,7 @@ pathp = ixNetwork.Globals.PersistencePath
 res = ixNetwork.SaveCaptureFiles(Arg1=pathp)[0]
 cf = "moveFile.cap"
 session.Session.DownloadFile(res, cf)
-host1_df = hw_pcap_to_dataframe(cf, "novus", 5000)
+host1_df = hw_pcap_to_dataframe(cf, "novus", 1000, "IPv6")
 print(host1_df)
 for p in [99, 95, 75, 50]:
     print('Calculated tail latencies')
