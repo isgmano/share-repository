@@ -68,7 +68,7 @@ def hw_pcap_to_dataframe(filename, card, limit=0, type="IP"):
                 "sent": decode_hw_ts(p, type, card),
                 "received": hw_pcap_to_ns(p.time),
                 "wirelen": p.wirelen,
-                "src": p[type].src,
+                #"src": p[type].src,
                 "timestamp": hw_pcap_to_dt(p.time),
                 "type": type,
                 "latency": hw_pcap_to_ns(p.time) - decode_hw_ts(p, type, card)
@@ -114,27 +114,27 @@ def get_tail_latency(df, percentile):
 
 print('Connecting to IxNetwork session')
 #use this for IxN web edition; use SessionName attribute for an existing session; replace correct credentials
-session = SessionAssistant(IpAddress='10.36.84.12', RestPort=None, UserName='admin', Password='admin', 
-                              SessionName="IxNetwork Test 1", SessionId=1, ApiKey=None, ClearConfig=False, LogLevel='info')
+#session = SessionAssistant(IpAddress='10.36.84.12', RestPort=None, UserName='admin', Password='admin', 
+#                              SessionName="IxNetwork Test 1", SessionId=1, ApiKey=None, ClearConfig=False, LogLevel='info')
 #use this for IxN Windows edition
-#session = SessionAssistant(IpAddress='10.36.87.216', RestPort=None,  
-#                               SessionName=None, SessionId=1, ApiKey=None, ClearConfig=False, LogLevel='info')
+session = SessionAssistant(IpAddress='10.36.87.216', RestPort=None,  
+                               SessionName=None, SessionId=1, ApiKey=None, ClearConfig=False, LogLevel='info')
 ixNetwork = session.Ixnetwork
 ixNetwork.CloseAllTabs()
 print('Priming the DUT with Multicast traffic')
-ixNetwork.Traffic.Start()
-time.sleep(10)
+
 print('Starting capture and traffic to get samples')
 ixNetwork.StartCapture()
 ixNetwork.Traffic.Start()
 time.sleep(10)
 print('Stopping capture and analyzing the packets')
 ixNetwork.StopCapture()
+ixNetwork.Traffic.Stop()
 pathp = ixNetwork.Globals.PersistencePath
 res = ixNetwork.SaveCaptureFiles(Arg1=pathp)[0]
 cf = "moveFile.cap"
 session.Session.DownloadFile(res, cf)
-host1_df = hw_pcap_to_dataframe(cf, "novus", 1000, "IPv6")
+host1_df = hw_pcap_to_dataframe(cf, "novus", 1000, "UDP")
 print(host1_df)
 for p in [99, 95, 75, 50]:
     print('Calculated tail latencies')
