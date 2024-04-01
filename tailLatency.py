@@ -23,6 +23,13 @@ import ipaddress
 
 from datetime import datetime
 
+def limit_capture(ixNetwork):
+    for port in ixNetwork.Vport.find():
+        capture = port.Capture
+        capture.DataCapturePacketWindowEnabled = 1
+        capture.DataCapturePacketWindowStartIndex = 0
+        capture.DataCapturePacketWindowEndIndex = 20000
+
 def aresone_offset(x):
     res = int(float(x) * 0.078125)
     if res >= 20:
@@ -124,6 +131,7 @@ ixNetwork.CloseAllTabs()
 print('Priming the DUT with Multicast traffic')
 
 print('Starting capture and traffic to get samples')
+limit_capture(ixNetwork)
 ixNetwork.StartCapture()
 ixNetwork.Traffic.Start()
 time.sleep(10)
